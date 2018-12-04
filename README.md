@@ -4,4 +4,4 @@
  1. 6.0之后敏感权限动态申请
  2. 7.0之后 使用本地真实的Uri路径不安全,直接使用Uri.fromFile(file);会报FileUriExposedException异常
 
- 测试文字数据
+ 测试文字数据,测试成功
