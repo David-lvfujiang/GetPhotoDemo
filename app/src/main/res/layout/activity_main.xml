@@ -6,19 +6,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dp20"
         android:onClick="UpdatePhoto"
         android:text="更改头像" />
-
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp10"
-        android:layout_marginEnd="@dimen/dp10"/>
+<de.hdodenhof.circleimageview.CircleImageView
+    android:layout_margin="@dimen/dp20"
+    android:id="@+id/image"
+    android:layout_width="100dp"
+    android:layout_height="100dp" />
 
 </LinearLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="了解会员特权"/>
+    <item
+
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="我的钱包"/>
+    <item
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="个性装扮"/>
+    <item
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="免流量特权"/>
+    <item
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="了解会员特权"/>
+    <item
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="我的收藏"/>
+    <item android:id="@+id/add"
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="我的相册"/>
+    <item android:id="@+id/remove"
+        android:icon="@drawable/dialog_bg_shape"
+        android:title="我的文件"/>
+</menu>

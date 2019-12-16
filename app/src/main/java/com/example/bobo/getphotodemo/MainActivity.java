@@ -2,6 +2,7 @@ package com.example.bobo.getphotodemo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,6 +14,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.zxy.tiny.Tiny;
 import com.zxy.tiny.callback.FileWithBitmapCallback;
@@ -31,94 +36,56 @@ import com.zxy.tiny.callback.FileWithBitmapCallback;
 import java.io.File;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  implements View.OnClickListener{
 
     //调取系统摄像头的请求码
     private static final int MY_ADD_CASE_CALL_PHONE = 6;
     //打开相册的请求码
     private static final int MY_ADD_CASE_CALL_PHONE2 = 7;
+    private AlertDialog.Builder builder;
+    private AlertDialog dialog;
+    private LayoutInflater inflater;
     private ImageView imageView;
+    private View layout;
+    private TextView takePhotoTV;
+    private TextView choosePhotoTV;
+    private TextView cancelTV;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         imageView = findViewById(R.id.image);
+
     }
+/*
+初始化控件方法
+ */
+public void viewInit() {
 
+    builder = new AlertDialog.Builder(this);//创建对话框
+    inflater = getLayoutInflater();
+    layout = inflater.inflate(R.layout.dialog_select_photo, null);//获取自定义布局
+    builder.setView(layout);//设置对话框的布局
+    dialog = builder.create();//生成最终的对话框
+    dialog.show();//显示对话框
+
+    takePhotoTV = layout.findViewById(R.id.photograph);
+    choosePhotoTV = layout.findViewById(R.id.photo);
+    cancelTV = layout.findViewById(R.id.cancel);
+    //设置监听
+    takePhotoTV.setOnClickListener(this);
+    choosePhotoTV.setOnClickListener(this);
+    cancelTV.setOnClickListener(this);
+}
+
+    /**
+     * 修改头像按钮执行方法
+     * @param view
+     */
     public void UpdatePhoto(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.dialog_select_photo, null);//获取自定义布局
-        builder.setView(layout);
-        final AlertDialog dlg = builder.create();
-        Window window = dlg.getWindow();
-        window.setGravity(Gravity.BOTTOM);
-        //设置点击外围消散
-        dlg.setCanceledOnTouchOutside(true);
-        dlg.show();
-
-        WindowManager m = getWindowManager();
-        Display d = m.getDefaultDisplay(); //为获取屏幕宽、高
-        WindowManager.LayoutParams p = dlg.getWindow().getAttributes(); //获取对话框当前的参数值
-        p.width = d.getWidth(); //宽度设置为屏幕
-
-        window.setBackgroundDrawable(new ColorDrawable(0));
-
-        TextView button1 = layout.findViewById(R.id.photograph);
-        TextView button2 = layout.findViewById(R.id.photo);
-        TextView button3 = layout.findViewById(R.id.cancel);
-
-
-        button1.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                //"点击了照相";
-                //  6.0之后动态申请权限 摄像头调取权限,SD卡写入权限
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_ADD_CASE_CALL_PHONE);
-                } else {
-                    try {
-                        //有权限,去打开摄像头
-                        takePhoto();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                dlg.dismiss();
-            }
-        });
-        button2.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                //"点击了相册");
-                //  6.0之后动态申请权限 SD卡写入权限
-                if (ContextCompat.checkSelfPermission(MainActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_ADD_CASE_CALL_PHONE2);
-
-                } else {
-                    choosePhoto();
-                }
-                dlg.dismiss();
-            }
-        });
-        button3.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                dlg.dismiss();
-            }
-        });
+        viewInit();
     }
 
     private void takePhoto() throws IOException {
@@ -166,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 申请权限回调
+     * 申请权限回调方法
      *
      * @param requestCode
      * @param permissions
@@ -183,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             } else {
+                Toast.makeText(this,"拒绝了你的请求",Toast.LENGTH_SHORT).show();
                 //"权限拒绝");
                 // TODO: 2018/12/4 这里可以给用户一个提示,请求权限被拒绝了
             }
@@ -200,7 +168,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
+    /**
+     * startActivityForResult执行后的回调方法，接收返回的图片
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -211,17 +184,15 @@ public class MainActivity extends AppCompatActivity {
             // 把原图显示到界面上
             Tiny.FileCompressOptions options = new Tiny.FileCompressOptions();
             Tiny.getInstance().source(readpic()).asFile().withOptions(options).compress(new FileWithBitmapCallback() {
-
                 @Override
                 public void callback(boolean isSuccess, Bitmap bitmap, String outfile, Throwable t) {
-                    saveImageToServer(bitmap, outfile);
+                    saveImageToServer(bitmap, outfile);//显示图片到imgView上
                 }
             });
-
         } else if (requestCode == 2 && resultCode == Activity.RESULT_OK
                 && null != data) {
             try {
-                Uri selectedImage = data.getData();
+                Uri selectedImage = data.getData();//获取路径
                 Tiny.FileCompressOptions options = new Tiny.FileCompressOptions();
                 Tiny.getInstance().source(selectedImage).asFile().withOptions(options).compress(new FileWithBitmapCallback() {
                     @Override
@@ -240,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private String readpic() {
         String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/nbinpic/" + "UserIcon.png";
-
         return filePath;
     }
 
@@ -250,4 +220,49 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageBitmap(bitmap);
     }
 
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.photograph:
+                //"点击了照相";
+                //  6.0之后动态申请权限 摄像头调取权限,SD卡写入权限
+                //判断是否拥有权限，true则动态申请
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_ADD_CASE_CALL_PHONE);
+                } else {
+                    try {
+                        //有权限,去打开摄像头
+                        takePhoto();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dialog.dismiss();
+                break;
+            case R.id.photo:
+                //"点击了相册";
+                //  6.0之后动态申请权限 SD卡写入权限
+                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_ADD_CASE_CALL_PHONE2);
+
+                } else {
+                    //打开相册
+                    choosePhoto();
+                }
+                dialog.dismiss();
+                break;
+            case R.id.cancel:
+                dialog.dismiss();//关闭对话框
+                break;
+            default:break;
+        }
+    }
 }
